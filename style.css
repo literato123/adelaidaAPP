@@ -1,0 +1,348 @@
+/* Pamata stili */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #001824;
+    color: cyan;
+    font-family: Arial, sans-serif;
+    display: flex;
+    height: 100vh;
+}
+
+/* Galvenais konteiners */
+.main-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: row;
+}
+
+/* Video konteiners */
+.video-container {
+    flex: 3;
+    background: black;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}
+
+.default-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Vadības panelis */
+.control-panel {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background-color: #001824;
+    min-width: 300px;
+}
+
+/* Pulksteņa stili */
+.clock {
+    width: 120px;
+    height: 120px;
+    border: 4px solid cyan;
+    border-radius: 50%;
+    position: relative;
+    background-color: #002436;
+    margin: 10px;
+}
+
+.clock-center {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: cyan;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+/* Pulksteņa rādītāji */
+.hour-hand, .minute-hand, .second-hand {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    transform-origin: 50% 100%;
+    transform: translateX(-50%);
+    border-radius: 4px;
+}
+
+.hour-hand {
+    width: 4px;
+    height: 30px;
+    background: cyan;
+}
+
+.minute-hand {
+    width: 3px;
+    height: 40px;
+    background: cyan;
+}
+
+.second-hand {
+    width: 2px;
+    height: 45px;
+    background: #00ff00;
+}
+
+/* Pulksteņa atzīmes */
+.time-marks {
+    --rotation: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform: rotate(var(--rotation));
+}
+
+.time-marks::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 10px;
+    background: cyan;
+}
+
+/* Vizualizācijas sadaļa */
+.visualization {
+    display: flex;
+    gap: 20px;
+    height: 120px;
+}
+
+/* Ievades sadaļa */
+.input-section {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.input-section span {
+    cursor: pointer;
+    padding: 8px 16px;
+    border: 1px solid cyan;
+    background: #002436;
+    transition: background-color 0.3s;
+}
+
+.input-section span:hover {
+    background: #003652;
+}
+
+.text-input {
+    flex-grow: 1;
+    background: #002436;
+    border: 1px solid cyan;
+    color: cyan;
+    padding: 8px;
+    outline: none;
+}
+
+.text-input::placeholder {
+    color: rgba(0, 255, 255, 0.5);
+}
+
+/* Mikrofona poga */
+.mic-btn {
+    min-width: 40px;
+    text-align: center;
+}
+
+.mic-btn.active {
+    background: #004870;
+    border-color: #00ff00;
+}
+
+/* Statusa teksts */
+.status {
+    text-align: center;
+    padding: 10px;
+}
+
+/* Logu sadaļa */
+.logs {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tab-container {
+    display: flex;
+    border-bottom: 1px solid cyan;
+}
+
+.tab {
+    padding: 8px 16px;
+    cursor: pointer;
+    border: 1px solid cyan;
+    border-bottom: none;
+    margin-right: 5px;
+}
+
+.tab.active {
+    background: #002436;
+}
+
+.log {
+    background: #002436;
+    border: 1px solid cyan;
+    padding: 10px;
+    height: 150px;
+    overflow-y: auto;
+    font-family: monospace;
+    white-space: pre-wrap;
+}
+
+/* Media queries mobilajām ierīcēm */
+@media (max-width: 768px) {
+    .main-container {
+        flex-direction: column;
+    }
+    
+    .video-container {
+        flex: none;
+        height: 40vh;
+    }
+    
+    .control-panel {
+        flex: none;
+        min-width: auto;
+        height: 60vh;
+    }
+    
+    .visualization {
+        justify-content: center;
+    }
+    
+    .input-section {
+        flex-wrap: wrap;
+    }
+    
+    .text-input {
+        min-width: 200px;
+    }
+}
+.audio-device-select {
+    background: #002436;
+    border: 1px solid cyan;
+    color: cyan;
+    padding: 8px;
+    margin-right: 10px;
+    outline: none;
+    cursor: pointer;
+}
+
+.audio-device-select option {
+    background: #002436;
+    color: cyan;
+    padding: 4px;
+}
+
+/* Video un audio elementi */
+video, audio {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* Pamata mobilās izmaiņas */
+@media (max-width: 768px) {
+    body {
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+    }
+
+    .main-container {
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .video-container {
+        height: 40vh;
+        min-height: auto;
+    }
+
+    .control-panel {
+        height: 60vh;
+        overflow-y: auto;
+        padding: 10px;
+        min-width: auto;
+    }
+
+    /* Pielāgojam pulksteni */
+    .clock {
+        width: 80px;
+        height: 80px;
+    }
+
+    /* Pielāgojam ievades sadaļu */
+    .input-section {
+        gap: 5px;
+    }
+
+    .input-section span {
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+
+    .text-input {
+        font-size: 16px; /* Novērš iOS auto-zoom */
+        padding: 6px;
+    }
+
+    /* Pielāgojam logus */
+    .logs {
+        max-height: calc(60vh - 200px);
+    }
+
+    .log {
+        height: 120px;
+        font-size: 14px;
+    }
+
+    /* Pielāgojam video */
+    video {
+        object-fit: contain;
+    }
+}
+
+/* iOS specifiskas korekcijas */
+@supports (-webkit-touch-callout: none) {
+    .main-container {
+        height: -webkit-fill-available;
+    }
+    
+    .input-section {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* Novēršam nejaušu teksta izvēli */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Atļaujam teksta izvēli tikai ievades laukos */
+input, textarea {
+    -webkit-user-select: text;
+    user-select: text;
+}

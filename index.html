@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Voice Assistant</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Voice Assistant">
+    <meta name="apple-mobile-web-app-title" content="Voice Assistant">
+    <meta name="theme-color" content="#001824">
+    <meta name="msapplication-navbutton-color" content="#001824">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="msapplication-starturl" content="/">
+    
+    <!-- Icons -->
+    <link rel="icon" sizes="72x72" href="icons/icon-72x72.png">
+    <link rel="icon" sizes="96x96" href="icons/icon-96x96.png">
+    <link rel="icon" sizes="128x128" href="icons/icon-128x128.png">
+    <link rel="icon" sizes="144x144" href="icons/icon-144x144.png">
+    <link rel="icon" sizes="152x152" href="icons/icon-152x152.png">
+    <link rel="icon" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="icon" sizes="384x384" href="icons/icon-384x384.png">
+    <link rel="icon" sizes="512x512" href="icons/icon-512x512.png">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="72x72" href="icons/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="96x96" href="icons/icon-96x96.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="icons/icon-128x128.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="384x384" href="icons/icon-384x384.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512x512.png">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <div class="video-container">
+            <video id="mainVideo" class="default-video" autoplay playsinline></video>
+            <audio id="mainAudio"></audio>
+            <audio id="preparationAudio"></audio>
+        </div>
+
+        <div class="visualization">
+            <div class="clock">
+                <div class="clock-center"></div>
+                <div class="hour-hand"></div>
+                <div class="minute-hand"></div>
+                <div class="second-hand"></div>
+                <div class="time-marks" style="--rotation: 0deg"></div>
+                <div class="time-marks" style="--rotation: 30deg"></div>
+                <div class="time-marks" style="--rotation: 60deg"></div>
+                <div class="time-marks" style="--rotation: 90deg"></div>
+                <div class="time-marks" style="--rotation: 120deg"></div>
+                <div class="time-marks" style="--rotation: 150deg"></div>
+                <div class="time-marks" style="--rotation: 180deg"></div>
+                <div class="time-marks" style="--rotation: 210deg"></div>
+                <div class="time-marks" style="--rotation: 240deg"></div>
+                <div class="time-marks" style="--rotation: 270deg"></div>
+                <div class="time-marks" style="--rotation: 300deg"></div>
+                <div class="time-marks" style="--rotation: 330deg"></div>
+            </div>
+            <div id="systemMonitor" class="system-monitor"></div>
+        </div>
+
+        <div class="control-panel">
+            <div class="input-section">
+                <span class="mic-btn">🎤</span>
+                <input type="text" id="textInput" class="text-input" placeholder="Rakstiet šeit...">
+                <span class="control-btn stop-btn">Stop</span>
+                <span class="control-btn send-btn">Sūtīt</span>
+            </div>
+
+            <div id="statusText" class="status">
+                Klausos...
+            </div>
+
+            <div class="logs">
+                <div class="tab-container">
+                    <div class="tab active">Sarunas logs</div>
+                    <div class="tab">Sistēmas logs</div>
+                </div>
+                <div id="chatLog" class="log"></div>
+                <div id="systemLog" class="log" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('/sw.js');
+                    console.log('ServiceWorker registration successful');
+                } catch (err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                }
+            });
+        }
+    </script>
+    
+    <!-- Prevent double tap zoom on mobile -->
+    <script>
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+        
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+    
+    <script type="module" src="main.js"></script>
+</body>
+</html>
