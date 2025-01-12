@@ -6,6 +6,13 @@ class AudioManager {
         this.mainVideo = document.getElementById('mainVideo');
         this.isPlaying = false;
         this.isPaused = false;
+
+        // Pievienojam event listener audio beigām
+        this.mainAudio.addEventListener('ended', () => {
+            this.isPlaying = false;
+            this.isPaused = false;
+            window.uiManager.updateSystemLog('Atskaņošana pabeigta');
+        });
         
         // Definējam vadības komandas
         this.controlCommands = {
@@ -35,7 +42,7 @@ class AudioManager {
                 keywords: ['rusiņš', 'rusiņu', 'russu']
             },
             'padespaņs': {
-                name: 'Atskaņoju...',
+                name: 'Atskaņoju padespaņu',
                 fragments: {
                     'sākums': 'MUSIC/kadrilas/adi/parts/sakums.mp3',
                     'vidus': 'MUSIC/kadrilas/adi/parts/vidus.mp3', 
@@ -44,16 +51,9 @@ class AudioManager {
                     'video': 'VIDEO/kadrilas/padespans/padespans.mp4'
                 },
                 keywords: ['padespaņs', 'spainis', 'bada spains']
-            },
+            }
             // Pārējās dejas...
         };
-
-        // Pievienojam event listener audio beigām
-        this.mainAudio.addEventListener('ended', () => {
-            this.isPlaying = false;
-            this.isPaused = false;
-            window.uiManager.updateSystemLog('Atskaņošana pabeigta');
-        });
     }
 
     handleCommand(command) {

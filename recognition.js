@@ -4,9 +4,10 @@ class RecognitionManager {
         this.isListening = false;
         this.recognition = null;
         this.isWakeWordActivated = false;
+        this.autoRestart = true;
         
         this.commands = {
-            wakeWords: ['adelaida', 'ada', 'adi'],
+            wakeWords: ['adelaida', 'ada', 'dj', 'adi'],
             controls: {
                 stop: ['stop', 'apstāties', 'beidz', 'beigt', 'pietiek', 'pārtrauc', 'apturi'],
                 pause: ['pauze', 'pauzt', 'nopauzē', 'nopauzēt', 'pagaidi'],
@@ -19,6 +20,7 @@ class RecognitionManager {
 
     setupSpeechRecognition() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
         if (!SpeechRecognition) {
             console.error('Pārlūks neatbalsta runas atpazīšanu');
             window.uiManager.updateSystemLog('Pārlūks neatbalsta runas atpazīšanu');
@@ -35,34 +37,61 @@ class RecognitionManager {
             this.isListening = true;
             document.querySelector('.mic-btn').classList.add('active');
             window.uiManager.updateStatusText('Klausos...');
-            if ('vibrate' in navigator) {
-                navigator.vibrate(50);
-            }
         };
 
         this.recognition.onend = () => {
+            // Vienmēr restartējam, bet ar pauzi
             if (this.isListening) {
-                this.recognition.start();
+                setTimeout(() => {
+                    try {
+                        this.recognition.start();
+                    } catch (error) {
+                        console.error('Kļūda restartējot klausīšanos:', error);
+                    }
+                }, 300);
             }
         };
 
         this.recognition.onresult = (event) => {
             const result = event.results[event.results.length - 1];
-            const text = result[0].transcript.toLowerCase();
-            
             if (!result.isFinal) return;
 
+            const text = result[0].transcript.toLowerCase();
             console.log('Atpazīts teksts:', text);
-            
-            // Vispirms pārbaudām kontroles komandas
+
+            // Vispirms pārbaudām kontroles komandas - tās strādā vienmēr
             if (this.checkControlCommands(text)) {
                 return;
             }
             
-            this.handleRecognizedText(text);
+            // Pārbaudām wake word
+            if (!this.isWakeWordActivated) {
+                if (this.commands.wakeWords.some(word => text.includes(word))) {
+                    this.isWakeWordActivated = true;
+                    window.uiManager.updateStatusText('Aktivizēts - klausos...');
+                    window.uiManager.updateChatLog(`Jūs: ${text}`);
+                    const response = window.responseManager.findResponse('wake_word');
+                    if (response) {
+                        window.uiManager.handleResponse(response);
+                    }
+                }
+                return;
+            }
+
+            // Apstrādājam pārējās komandas
+            window.uiManager.updateChatLog(`Jūs: ${text}`);
+            const response = window.audioManager.handleCommand(text);
+            
+            if (response) {
+                this.isWakeWordActivated = false;
+                window.uiManager.updateStatusText('Gaidu aktivizāciju...');
+                window.uiManager.handleResponse(response);
+            }
         };
 
         this.recognition.onerror = (event) => {
+            if (event.error === 'no-speech') return; // Ignorējam no-speech kļūdu
+            
             console.error('Runas atpazīšanas kļūda:', event.error);
             window.uiManager.updateSystemLog(`Runas atpazīšanas kļūda: ${event.error}`);
             
@@ -74,7 +103,7 @@ class RecognitionManager {
     }
 
     checkControlCommands(text) {
-        // Pārbaudām stop komandas
+        // Stop komandas
         if (this.commands.controls.stop.some(cmd => text.includes(cmd))) {
             window.audioManager.stopPlayback();
             window.uiManager.updateChatLog(`Jūs: ${text}`);
@@ -82,7 +111,7 @@ class RecognitionManager {
             return true;
         }
 
-        // Pārbaudām pause komandas
+        // Pause komandas
         if (this.commands.controls.pause.some(cmd => text.includes(cmd))) {
             window.audioManager.pausePlayback();
             window.uiManager.updateChatLog(`Jūs: ${text}`);
@@ -90,7 +119,7 @@ class RecognitionManager {
             return true;
         }
 
-        // Pārbaudām resume komandas
+        // Resume komandas
         if (this.commands.controls.resume.some(cmd => text.includes(cmd))) {
             window.audioManager.resumePlayback();
             window.uiManager.updateChatLog(`Jūs: ${text}`);
@@ -99,33 +128,6 @@ class RecognitionManager {
         }
 
         return false;
-    }
-
-    handleRecognizedText(text) {
-        if (!this.isWakeWordActivated) {
-            if (this.commands.wakeWords.some(word => text.includes(word))) {
-                this.isWakeWordActivated = true;
-                window.uiManager.updateStatusText('Aktivizēts - klausos...');
-                window.uiManager.updateChatLog(`Jūs: ${text}`);
-                const response = window.responseManager.findResponse('wake_word');
-                if (response) {
-                    window.uiManager.handleResponse(response);
-                }
-                if ('vibrate' in navigator) {
-                    navigator.vibrate([100, 50, 100]);
-                }
-            }
-            return;
-        }
-
-        window.uiManager.updateChatLog(`Jūs: ${text}`);
-        const response = window.audioManager.handleCommand(text);
-        
-        if (response) {
-            this.isWakeWordActivated = false;
-            window.uiManager.updateStatusText('Gaidu aktivizāciju...');
-            window.uiManager.handleResponse(response);
-        }
     }
 
     async startListening() {
@@ -144,7 +146,11 @@ class RecognitionManager {
         document.querySelector('.mic-btn').classList.remove('active');
         window.uiManager.updateStatusText('Gaidīšanas režīmā');
         if (this.recognition) {
-            this.recognition.stop();
+            try {
+                this.recognition.abort();
+            } catch (error) {
+                console.error('Kļūda apturot klausīšanos:', error);
+            }
         }
     }
 
